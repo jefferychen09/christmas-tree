@@ -3,10 +3,11 @@ import { GestureRecognizer, FilesetResolver, DrawingUtils, type NormalizedLandma
 import type { GestureMotion, SceneState } from '../scene/config';
 import type { GestureKey } from '../i18n';
 
-// wasm 版本与 package.json 中的 @mediapipe/tasks-vision 保持一致
-const WASM_URL = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22-rc.20250304/wasm';
-const MODEL_URL =
-  'https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task';
+// 模型和 wasm 都从自己的网站加载（public/mediapipe/），不依赖 Google / jsDelivr，国内也能用。
+// wasm 由 scripts/copy-mediapipe.mjs 在 dev/build 前从 node_modules 复制，版本自动一致。
+const asset = (path: string) => new URL(`${import.meta.env.BASE_URL}mediapipe/${path}`, window.location.href).href;
+const WASM_URL = asset('wasm');
+const MODEL_URL = asset('gesture_recognizer.task');
 
 export type GestureStatus =
   | { kind: 'loading' | 'camera' | 'ready' | 'tracking' | 'denied' }

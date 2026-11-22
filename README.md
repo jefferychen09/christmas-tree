@@ -67,6 +67,7 @@ src/
 
 ## 说明
 
-- 手势识别需要联网下载 MediaPipe 模型，并且需要 https 或 localhost 才能调用摄像头。
+- 手势模型（`public/mediapipe/gesture_recognizer.task`）、wasm 和花体字都从网站自己加载，不依赖 Google / jsDelivr，国内也能用。wasm 在 `npm run dev` / `npm run build` 前由 `scripts/copy-mediapipe.mjs` 自动从 node_modules 复制。
+- 摄像头需要 https 或 localhost。
 - 在线预览版（claude.ai 链接）不能用摄像头，所以那里没有手势按钮；烟花彩蛋可以点星星触发。
 - 原仓库自带的照片是同一张真人肖像复制了 31 份，这里没有使用。
