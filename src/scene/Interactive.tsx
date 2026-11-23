@@ -74,7 +74,7 @@ export const PhotoOrnaments = ({
     groupRef.current.children.forEach((group, i) => {
       const d = data[i];
       if (!d) return;
-      d.currentPos.lerp(formed ? d.targetPos : d.chaosPos, delta * (formed ? 0.8 * d.weight : 0.5));
+      d.currentPos.lerp(formed ? d.targetPos : d.chaosPos, Math.min(1, delta * (formed ? 0.8 * d.weight : 0.5)));
       group.position.copy(d.currentPos);
       const targetScale = d.scale * (hovered.current === i ? 1.35 : 1);
       d.currentScale = THREE.MathUtils.damp(d.currentScale, targetScale, 10, delta);
@@ -197,7 +197,7 @@ export const Decorations = ({ state, onGift }: { state: SceneState; onGift: () =
     const formed = state === 'FORMED';
     groupRef.current.children.forEach((child, i) => {
       const d = data[i];
-      d.currentPos.lerp(formed ? d.targetPos : d.chaosPos, delta * 1.5);
+      d.currentPos.lerp(formed ? d.targetPos : d.chaosPos, Math.min(1, delta * 1.5));
       child.position.copy(d.currentPos);
       child.rotation.x += delta * d.rotationSpeed.x;
       child.rotation.y += delta * d.rotationSpeed.y;
@@ -273,7 +273,7 @@ export const Presents = ({ state, onGift }: { state: SceneState; onGift: () => v
     const t = root.clock.elapsedTime;
     groupRef.current.children.forEach((child, i) => {
       const d = data[i];
-      d.currentPos.lerp(formed ? d.targetPos : d.chaosPos, delta * 1.2);
+      d.currentPos.lerp(formed ? d.targetPos : d.chaosPos, Math.min(1, delta * 1.2));
       child.position.copy(d.currentPos);
       const isHover = hovered.current === i;
       if (isHover) child.position.y += 0.4 + Math.abs(Math.sin(t * 8)) * 0.4;

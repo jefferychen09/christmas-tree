@@ -109,7 +109,7 @@ export const FairyLights = ({ state, celebrating }: { state: SceneState; celebra
     const t = root.clock.elapsedTime;
     groupRef.current.children.forEach((child, i) => {
       const d = data[i];
-      d.currentPos.lerp(formed ? d.targetPos : d.chaosPos, delta * 2);
+      d.currentPos.lerp(formed ? d.targetPos : d.chaosPos, Math.min(1, delta * 2));
       const mesh = child as THREE.Mesh;
       mesh.position.copy(d.currentPos);
       const flicker = (Math.sin(t * d.speed * (celebrating ? 2.5 : 1) + d.timeOffset) + 1) / 2;
@@ -135,7 +135,7 @@ export const TopStar = ({ state, onClick }: { state: SceneState; onClick: () => 
     const shape = new THREE.Shape();
     for (let i = 0; i < 10; i++) {
       const r = i % 2 === 0 ? 1.3 : 0.7;
-      const a = (i / 10) * Math.PI * 2 - Math.PI / 2;
+      const a = (i / 10) * Math.PI * 2 + Math.PI / 2; // 第一个尖朝上，星星正着立
       if (i === 0) shape.moveTo(r * Math.cos(a), r * Math.sin(a));
       else shape.lineTo(r * Math.cos(a), r * Math.sin(a));
     }
@@ -150,12 +150,12 @@ export const TopStar = ({ state, onClick }: { state: SceneState; onClick: () => 
     if (!groupRef.current) return;
     groupRef.current.rotation.y += delta * 0.5;
     const s = state === 'FORMED' ? 1 : 0;
-    groupRef.current.scale.lerp(target.set(s, s, s), delta * 3);
+    groupRef.current.scale.lerp(target.set(s, s, s), Math.min(1, delta * 3));
   });
 
   return (
     <group ref={groupRef} position={[0, CONFIG.tree.height / 2 + 1.8, 0]} scale={0}>
-      <Float speed={2} rotationIntensity={0.2} floatIntensity={0.2}>
+      <Float speed={2} rotationIntensity={0} floatIntensity={0.2}>
         <mesh
           geometry={geometry}
           scale={1.15}

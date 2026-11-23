@@ -31,7 +31,9 @@ export const cardHash = (card: Card) =>
   HASH_KEY + encode(JSON.stringify({ t: card.to.trim(), m: card.msg.trim(), f: card.from.trim(), l: card.lang }));
 
 /** 生成完整的分享链接。用 # 存放，内容不会发送到服务器 */
-export const cardUrl = (card: Card) => `${location.origin}${location.pathname}#${cardHash(card)}`;
+// 嵌在别的页面里运行时（例如 claude.ai 在线预览），本页地址别人打不开，构建时用 VITE_SHARE_URL 指定贺卡链接的网址
+const SHARE_URL: string | undefined = import.meta.env.VITE_SHARE_URL;
+export const cardUrl = (card: Card) => `${SHARE_URL || location.origin + location.pathname}#${cardHash(card)}`;
 
 /** 从当前地址读出贺卡；没有或格式不对时返回 null */
 export function readCardFromHash(): Card | null {
