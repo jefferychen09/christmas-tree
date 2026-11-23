@@ -33,9 +33,12 @@
 
 ## 在线访问
 
-https://jefferychen09.github.io/christmas-tree/
+| 地址 | 托管 | 怎么更新 |
+| --- | --- | --- |
+| https://christmas-tree-794.pages.dev/ | Cloudflare Pages（国内一般更容易打开） | `npm run deploy:cf`（第一次会让你在浏览器登录 Cloudflare） |
+| https://jefferychen09.github.io/christmas-tree/ | GitHub Pages | 推送到 `main` 自动发布（见 `.github/workflows/deploy.yml`），一两分钟后生效 |
 
-推送到 `main` 分支后，GitHub Actions 会自动构建并重新发布（见 `.github/workflows/deploy.yml`），一两分钟后生效。
+贺卡链接用哪个地址生成，收件人就打开哪个地址。
 
 ## 运行
 
