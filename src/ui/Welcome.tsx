@@ -7,10 +7,11 @@ interface Props {
   initialUploads: PhotoItem[];
   onUseDefault: () => void;
   onUseUploads: (photos: PhotoItem[]) => void;
+  onWriteCard: () => void;
   onClose?: () => void;
 }
 
-export default function Welcome({ initialUploads, onUseDefault, onUseUploads, onClose }: Props) {
+export default function Welcome({ initialUploads, onUseDefault, onUseUploads, onWriteCard, onClose }: Props) {
   const [uploads, setUploads] = useState<PhotoItem[]>(initialUploads);
   const [busy, setBusy] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -106,6 +107,17 @@ export default function Welcome({ initialUploads, onUseDefault, onUseUploads, on
               </button>
             </div>
           </div>
+        </div>
+
+        {/* 写贺卡 */}
+        <div className="card-cta">
+          <div className="card-cta__text">
+            <h2>{t.cardCtaTitle}</h2>
+            <p>{t.cardCtaDesc}</p>
+          </div>
+          <button className="btn btn--ghost" onClick={onWriteCard}>
+            {t.writeCard}
+          </button>
         </div>
       </div>
     </div>

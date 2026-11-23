@@ -50,6 +50,41 @@ const en = {
   guideTitle: 'Gestures',
   guideTryHint: 'Tap a row to try it',
   loveMessage: 'Merry Christmas 🎄',
+  // 贺卡
+  cardCtaTitle: 'Send someone a Christmas card',
+  cardCtaDesc: 'Write a few words and get a link. When they open it, the tree lights up and your card is waiting.',
+  writeCard: '💌 Write a card',
+  sendCard: '💌 Send a card',
+  reopenCard: '💌 Card',
+  composerTitle: 'Write a Christmas card',
+  toLabel: 'To',
+  toPlaceholder: 'Their name',
+  msgLabel: 'Message',
+  msgPlaceholder: 'Write something warm…',
+  fromLabel: 'From',
+  fromPlaceholder: 'Your name (optional)',
+  samplesLabel: 'Need an idea?',
+  samples: [
+    'Wishing you a cozy Christmas and a bright new year.',
+    'Thank you for every bit of warmth this year. Merry Christmas!',
+    'May your days be merry and your nights full of lights.',
+  ],
+  createLink: 'Create link',
+  needFields: 'Add a name and a message first',
+  linkReady: 'Your link is ready',
+  linkHint: 'Send it to them in any chat. The link carries your words, and the tree is decorated with the gift set. Photos you uploaded stay on this device.',
+  copy: 'Copy link',
+  copied: 'Copied ✓',
+  copyFail: 'Select the link above and copy it',
+  preview: 'Open it',
+  edit: 'Edit',
+  cardYear: (y: number) => `Christmas · ${y}`,
+  dear: (name: string) => `Dear ${name},`,
+  signed: (name: string) => `— ${name}`,
+  envelopeFor: (name: string) => `For ${name}`,
+  tapToOpen: 'Tap to open',
+  exploreTree: 'See the tree',
+  makeOwn: 'Write my own',
   gestures: {
     Closed_Fist: ['✊', 'Fist', 'Assemble the tree'],
     Open_Palm: ['🖐', 'Open palm', 'Scatter the tree'],
@@ -111,6 +146,36 @@ const zh: typeof en = {
   guideTitle: '手势说明',
   guideTryHint: '点一行可以直接试试',
   loveMessage: '圣诞快乐 🎄',
+  cardCtaTitle: '给 TA 寄一张圣诞贺卡',
+  cardCtaDesc: '写几句话，生成一个专属链接。TA 打开时，圣诞树亮起，你的贺卡就在那里等着。',
+  writeCard: '💌 写贺卡',
+  sendCard: '💌 寄贺卡',
+  reopenCard: '💌 贺卡',
+  composerTitle: '写一张圣诞贺卡',
+  toLabel: '写给',
+  toPlaceholder: 'TA 的名字',
+  msgLabel: '想说的话',
+  msgPlaceholder: '写点温暖的话…',
+  fromLabel: '署名',
+  fromPlaceholder: '你的名字（可不填）',
+  samplesLabel: '没想好？试试这些',
+  samples: ['愿你圣诞温暖，新年闪闪发光。', '谢谢你这一年的陪伴，圣诞快乐！', '把今年最亮的那颗星送给你。'],
+  createLink: '生成专属链接',
+  needFields: '先填好名字和想说的话',
+  linkReady: '链接已生成',
+  linkHint: '发到微信或任何聊天里都可以。链接里带着你写的话，圣诞树用默认礼品装饰；你上传的照片只留在这台设备上。',
+  copy: '复制链接',
+  copied: '已复制 ✓',
+  copyFail: '请手动选中上面的链接复制',
+  preview: '打开看看',
+  edit: '修改',
+  cardYear: (y: number) => `Christmas · ${y}`,
+  dear: (name: string) => `亲爱的 ${name}：`,
+  signed: (name: string) => `—— ${name}`,
+  envelopeFor: (name: string) => `给 ${name}`,
+  tapToOpen: '点一下拆开',
+  exploreTree: '去看圣诞树',
+  makeOwn: '我也写一张',
   gestures: {
     Closed_Fist: ['✊', '握拳', '聚合成树'],
     Open_Palm: ['🖐', '张开手掌', '散开'],
@@ -141,7 +206,7 @@ const readLang = (): Lang => {
   return 'en';
 };
 
-const LangContext = createContext<{ lang: Lang; t: Dict; setLang: (l: Lang) => void }>({
+const LangContext = createContext<{ lang: Lang; t: Dict; setLang: (l: Lang, persist?: boolean) => void }>({
   lang: 'en',
   t: dict.en,
   setLang: () => {},
@@ -155,8 +220,10 @@ export function LangProvider({ children }: { children: ReactNode }) {
     document.title = lang === 'zh' ? '圣诞记忆树' : 'Christmas Memory Tree';
   }, [lang]);
 
-  const setLang = (l: Lang) => {
+  // persist=false：只切换这一次（例如打开别人用中文写的贺卡），不改掉访客自己记住的语言
+  const setLang = (l: Lang, persist = true) => {
     setLangState(l);
+    if (!persist) return;
     try {
       localStorage.setItem(STORAGE_KEY, l);
     } catch {

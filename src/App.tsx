@@ -11,6 +11,9 @@ import GiftModal from './ui/GiftModal';
 import Celebration from './ui/Celebration';
 import GestureGuide from './ui/GestureGuide';
 import type { ActionGesture, GestureStatus } from './ui/GestureController';
+import GreetingCard from './ui/GreetingCard';
+import CardComposer from './ui/CardComposer';
+import { cardHash, readCardFromHash, type Card } from './card';
 
 // 手势模块按需加载（只有点了「手势控制」才下载 MediaPipe）
 const GestureController = lazy(() => import('./ui/GestureController'));
@@ -20,12 +23,20 @@ const CELEBRATE_MS = 8000;
 
 type Mode = 'default' | 'upload';
 
+type CardView = 'hidden' | 'sealed' | 'open';
+const ENVELOPE_DELAY = 1800; // 树聚合好之后再出现信封
+
 export default function App() {
-  const { t } = useLang();
+  const { t, setLang } = useLang();
   const defaultGifts = useMemo(() => getDefaultGifts(), []);
-  const [mode, setMode] = useState<Mode | null>(null);
+  // 通过贺卡链接打开时：跳过欢迎页，直接用默认礼品装饰
+  const [card, setCard] = useState<Card | null>(readCardFromHash);
+  const [cardView, setCardView] = useState<CardView>('hidden');
+  const [composerOpen, setComposerOpen] = useState(false);
+  const [quietCelebrate, setQuietCelebrate] = useState(false);
+  const [mode, setMode] = useState<Mode | null>(() => (card ? 'default' : null));
   const [uploads, setUploads] = useState<PhotoItem[]>([]);
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(() => !card);
   const [sceneState, setSceneState] = useState<SceneState>('CHAOS');
   const [photoIndex, setPhotoIndex] = useState<number | null>(null);
   const [giftOpen, setGiftOpen] = useState(false);
@@ -49,7 +60,62 @@ export default function App() {
     setTimeout(() => setSceneState('FORMED'), 600);
   };
 
-  const celebrate = useCallback(() => setCelebrateId((n) => n + 1), []);
+  // 收到贺卡：语言跟随写卡人，树聚合，稍后出现信封。链接在当前页面里变化（点「打开看看」）也走这里
+  useEffect(() => {
+    if (!card) return;
+    setLang(card.lang, false);
+    setShowWelcome(false);
+    setPhotoIndex(null);
+    setGiftOpen(false);
+    setCardView('hidden');
+    setMode((m) => m ?? 'default');
+    setSceneState('CHAOS');
+    const form = setTimeout(() => setSceneState('FORMED'), 600);
+    const env = setTimeout(() => setCardView('sealed'), ENVELOPE_DELAY);
+    return () => {
+      clearTimeout(form);
+      clearTimeout(env);
+    };
+  }, [card]);
+
+  useEffect(() => {
+    const onHash = () => {
+      const next = readCardFromHash();
+      if (next) {
+        setComposerOpen(false);
+        setCard(next);
+      }
+    };
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  const celebrate = useCallback(() => {
+    setQuietCelebrate(false);
+    setCelebrateId((n) => n + 1);
+  }, []);
+  const onCardOpened = useCallback(() => {
+    setQuietCelebrate(true);
+    setCelebrateId((n) => n + 1);
+  }, []);
+  const closeCard = useCallback(() => setCardView('hidden'), []);
+  const openComposer = useCallback(() => {
+    setCardView('hidden');
+    setShowWelcome(false);
+    setComposerOpen(true);
+    // 从欢迎页直接来写贺卡：先用默认礼品把树装好，关掉贺卡后能看到树
+    if (!mode) {
+      setMode('default');
+      setSceneState('FORMED');
+    }
+  }, [mode]);
+  const closeComposer = useCallback(() => setComposerOpen(false), []);
+  // 「打开看看」：把地址换成贺卡链接（不新增历史记录），然后按收件人的视角重新播放
+  const previewCard = useCallback((next: Card) => {
+    history.replaceState(null, '', `#${cardHash(next)}`);
+    setComposerOpen(false);
+    setCard(readCardFromHash()); // 与收件人读到的完全一致（去掉首尾空格等）
+  }, []);
   useEffect(() => {
     if (!celebrateId) return;
     setCelebrating(true);
@@ -60,15 +126,16 @@ export default function App() {
   const onPhotoClick = useCallback((i: number) => setPhotoIndex(i), []);
   const onGiftClick = useCallback(() => setGiftOpen(true), []);
   const closeGift = useCallback(() => setGiftOpen(false), []);
-  const modalOpen = showWelcome || photoIndex !== null || giftOpen;
+  const modalOpen = showWelcome || photoIndex !== null || giftOpen || composerOpen || cardView !== 'hidden';
 
   // 手势（或说明面板里点击）触发的一次性动作。用 ref 读最新状态，避免回调频繁变化
-  const live = useRef({ showWelcome, photoIndex, giftOpen, count: treePhotos.length });
-  live.current = { showWelcome, photoIndex, giftOpen, count: treePhotos.length };
+  const blocking = showWelcome || composerOpen || cardView !== 'hidden';
+  const live = useRef({ blocking, photoIndex, giftOpen, count: treePhotos.length });
+  live.current = { blocking, photoIndex, giftOpen, count: treePhotos.length };
   const onAction = useCallback(
     (g: ActionGesture) => {
       const s = live.current;
-      if (s.showWelcome) return;
+      if (s.blocking) return;
       switch (g) {
         case 'Pointing_Up':
           setPhotoIndex(null);
@@ -139,7 +206,7 @@ export default function App() {
         </Canvas>
       </div>
 
-      <Celebration id={celebrateId} />
+      <Celebration id={celebrateId} quiet={quietCelebrate} />
 
       {gestureOn && (
         <Suspense fallback={null}>
@@ -180,6 +247,14 @@ export default function App() {
             <button className="btn btn--ghost btn--sm" onClick={() => setShowWelcome(true)}>
               {t.changePhotos}
             </button>
+            {card && (
+              <button className="btn btn--ghost btn--sm" onClick={() => setCardView('open')}>
+                {t.reopenCard}
+              </button>
+            )}
+            <button className="btn btn--ghost btn--sm" onClick={openComposer}>
+              {t.sendCard}
+            </button>
             {GESTURES_ENABLED && (
               <button
                 className={`btn btn--sm ${gestureOn ? 'btn--gold' : 'btn--ghost'}`}
@@ -211,9 +286,23 @@ export default function App() {
           initialUploads={uploads}
           onUseDefault={() => start('default')}
           onUseUploads={(photos) => start('upload', photos)}
+          onWriteCard={openComposer}
           onClose={mode ? () => setShowWelcome(false) : undefined}
         />
       )}
+
+      {card && cardView !== 'hidden' && (
+        <GreetingCard
+          key={cardView}
+          card={card}
+          sealed={cardView === 'sealed'}
+          onOpened={onCardOpened}
+          onClose={closeCard}
+          onMakeOwn={openComposer}
+        />
+      )}
+
+      {composerOpen && <CardComposer initial={null} onClose={closeComposer} onPreview={previewCard} />}
 
       {photoIndex !== null && (
         <PhotoModal photos={treePhotos} index={photoIndex} onChange={setPhotoIndex} onClose={() => setPhotoIndex(null)} />

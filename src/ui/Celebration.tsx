@@ -14,8 +14,8 @@ interface Particle {
   size: number;
 }
 
-/** 🤟 彩蛋：满屏烟花 + 爱心烟花 + 一句祝福。每次 id 变化播放一次 */
-export default function Celebration({ id }: { id: number }) {
+/** 🤟 彩蛋：满屏烟花 + 爱心烟花 + 一句祝福（quiet 时不显示文字，比如拆贺卡时）。每次 id 变化播放一次 */
+export default function Celebration({ id, quiet = false }: { id: number; quiet?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { t } = useLang();
 
@@ -111,7 +111,7 @@ export default function Celebration({ id }: { id: number }) {
   return (
     <>
       <canvas ref={canvasRef} className="fireworks" aria-hidden />
-      {id > 0 && (
+      {id > 0 && !quiet && (
         <div className="love" key={id} role="status">
           {t.loveMessage}
         </div>
