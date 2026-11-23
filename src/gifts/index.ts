@@ -5,6 +5,8 @@ export interface PhotoItem {
   name?: string;
   /** 英文名（内置插画有；自己的图片用文件名） */
   nameEn?: string;
+  /** 日文名（内置插画有） */
+  nameJa?: string;
 }
 
 // 你自己的礼品图片：放进 src/assets/gifts/ 文件夹即可自动加载（文件名就是礼品名，例如「小火车.jpg」）

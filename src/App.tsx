@@ -14,6 +14,7 @@ import type { ActionGesture, GestureStatus } from './ui/GestureController';
 import GreetingCard from './ui/GreetingCard';
 import CardComposer from './ui/CardComposer';
 import { cardHash, readCardFromHash, type Card } from './card';
+import { IS_TOUCH } from './device';
 
 // 手势模块按需加载（只有点了「手势控制」才下载 MediaPipe）
 const GestureController = lazy(() => import('./ui/GestureController'));
@@ -193,7 +194,7 @@ export default function App() {
   return (
     <div className="app">
       <div className={`stage ${modalOpen ? 'stage--dim' : ''}`}>
-        <Canvas dpr={[1, 2]} gl={{ toneMapping: THREE.ReinhardToneMapping }}>
+        <Canvas dpr={[1, IS_TOUCH ? 1.5 : 2]} gl={{ toneMapping: THREE.ReinhardToneMapping }}>
           <Experience
             sceneState={sceneState}
             motion={motion}
@@ -229,7 +230,7 @@ export default function App() {
             <span>{t.hintPhoto}</span>
             <span>{t.hintGift}</span>
             <span>{t.hintStar}</span>
-            <span>{t.hintDrag}</span>
+            <span>{IS_TOUCH ? t.hintDragTouch : t.hintDrag}</span>
           </div>
 
           <div className="hud hud--stats">

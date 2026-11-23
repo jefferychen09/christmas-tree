@@ -26,7 +26,7 @@ export default function Experience({ sceneState, motion, celebrating, onStarClic
   const controlsRef = useRef<OrbitControlsImpl>(null);
   // 竖屏（手机）时把镜头拉远一些，保证整棵树都能看到
   const aspect = useThree((s) => s.size.width / s.size.height);
-  const distance = aspect < 0.8 ? 50 / Math.max(aspect, 0.45) * 0.75 : 50;
+  const distance = aspect < 0.8 ? (50 / Math.max(aspect, 0.45)) * 0.64 : 50;
 
   const camera = useThree((s) => s.camera);
 

@@ -6,6 +6,7 @@ type Ctx = CanvasRenderingContext2D;
 interface Illustration {
   name: string;
   nameEn: string;
+  nameJa: string;
   bg: [string, string]; // 背景径向渐变：中心色、边缘色
   draw: (ctx: Ctx) => void;
 }
@@ -81,6 +82,7 @@ const illustrations: Illustration[] = [
   {
     name: '神秘礼盒',
     nameEn: 'Mystery Box',
+    nameJa: 'ミステリーボックス',
     bg: ['#2f6b4f', '#123326'],
     draw(ctx) {
       shadow(ctx, 256, 438, 140);
@@ -114,6 +116,7 @@ const illustrations: Illustration[] = [
   {
     name: '泰迪熊',
     nameEn: 'Teddy Bear',
+    nameJa: 'テディベア',
     bg: ['#7a3b52', '#2c1220'],
     draw(ctx) {
       const fur = '#a1673a', light = '#d7a86e', dark = '#5d3a1a';
@@ -155,6 +158,7 @@ const illustrations: Illustration[] = [
   {
     name: '拐杖糖',
     nameEn: 'Candy Cane',
+    nameJa: 'キャンディケイン',
     bg: ['#1d4e6b', '#0a1d2b'],
     draw(ctx) {
       ctx.save();
@@ -185,6 +189,7 @@ const illustrations: Illustration[] = [
   {
     name: '金色铃铛',
     nameEn: 'Golden Bell',
+    nameJa: '金のベル',
     bg: ['#7b1f1f', '#2a0a0a'],
     draw(ctx) {
       const gold = ctx.createLinearGradient(150, 0, 362, 0);
@@ -214,6 +219,7 @@ const illustrations: Illustration[] = [
   {
     name: '小雪人',
     nameEn: 'Snowman',
+    nameJa: '雪だるま',
     bg: ['#2b4a7a', '#0d1830'],
     draw(ctx) {
       shadow(ctx, 256, 470, 120);
@@ -253,6 +259,7 @@ const illustrations: Illustration[] = [
   {
     name: '姜饼人',
     nameEn: 'Gingerbread Man',
+    nameJa: 'ジンジャーブレッドマン',
     bg: ['#3d5a2a', '#15210e'],
     draw(ctx) {
       const cookie = '#b8652e';
@@ -286,6 +293,7 @@ const illustrations: Illustration[] = [
   {
     name: '圣诞袜',
     nameEn: 'Stocking',
+    nameJa: 'クリスマスの靴下',
     bg: ['#2d5d63', '#0e2427'],
     draw(ctx) {
       ctx.beginPath();
@@ -318,6 +326,7 @@ const illustrations: Illustration[] = [
   {
     name: '圣诞彩球',
     nameEn: 'Bauble',
+    nameJa: 'オーナメントボール',
     bg: ['#4a2a6e', '#160b24'],
     draw(ctx) {
       ctx.strokeStyle = '#ffd54f'; ctx.lineWidth = 4;
@@ -346,6 +355,7 @@ const illustrations: Illustration[] = [
   {
     name: '热可可',
     nameEn: 'Hot Cocoa',
+    nameJa: 'ホットココア',
     bg: ['#6b3e26', '#24130a'],
     draw(ctx) {
       shadow(ctx, 245, 440, 125);
@@ -381,6 +391,7 @@ const illustrations: Illustration[] = [
   {
     name: '毛线手套',
     nameEn: 'Knitted Mitten',
+    nameJa: 'ニットのミトン',
     bg: ['#7a2a3a', '#2a0b13'],
     draw(ctx) {
       ctx.save();
@@ -404,6 +415,7 @@ const illustrations: Illustration[] = [
   {
     name: '圣诞花环',
     nameEn: 'Wreath',
+    nameJa: 'クリスマスリース',
     bg: ['#6e1c1c', '#260808'],
     draw(ctx) {
       const greens = ['#1b5e20', '#2e7d32', '#388e3c', '#43a047'];
@@ -430,6 +442,7 @@ const illustrations: Illustration[] = [
   {
     name: '许愿星',
     nameEn: 'Wishing Star',
+    nameJa: '願い星',
     bg: ['#1f2f6b', '#080d26'],
     draw(ctx) {
       for (let i = 0; i < 40; i++) circle(ctx, (i * 131 + 17) % S, (i * 211 + 41) % S, 1.5 + (i % 3), 'rgba(255,255,255,0.6)');
@@ -467,6 +480,7 @@ const drawBackground = (ctx: Ctx, [inner, outer]: [string, string]) => {
 export interface DrawnGift {
   name: string;
   nameEn: string;
+  nameJa: string;
   url: string;
 }
 
@@ -484,7 +498,7 @@ export function getIllustratedGifts(): DrawnGift[] {
     ctx.save();
     item.draw(ctx);
     ctx.restore();
-    return { name: item.name, nameEn: item.nameEn, url: canvas.toDataURL('image/jpeg', 0.9) };
+    return { name: item.name, nameEn: item.nameEn, nameJa: item.nameJa, url: canvas.toDataURL('image/jpeg', 0.9) };
   });
   return cache;
 }

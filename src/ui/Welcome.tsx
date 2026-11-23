@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import type { PhotoItem } from '../gifts';
 import { filesToPhotos } from '../utils/image';
+import { IS_TOUCH } from '../device';
 import { useLang } from '../i18n';
 
 interface Props {
@@ -55,8 +56,10 @@ export default function Welcome({ initialUploads, onUseDefault, onUseUploads, on
               addFiles(e.dataTransfer.files);
             }}
           >
-            <div className="choice__icon">📷</div>
-            <h2>{t.uploadTitle}</h2>
+            <div className="choice__head">
+              <div className="choice__icon">📷</div>
+              <h2>{t.uploadTitle}</h2>
+            </div>
             <p>{t.uploadDesc}</p>
 
             <input
@@ -93,13 +96,15 @@ export default function Welcome({ initialUploads, onUseDefault, onUseUploads, on
                 {t.decorateWith(uploads.length)}
               </button>
             </div>
-            <p className="hint">{t.uploadHint}</p>
+            <p className="hint">{IS_TOUCH ? t.uploadHintTouch : t.uploadHint}</p>
           </div>
 
           {/* 默认礼品 */}
           <div className="choice choice--default">
-            <div className="choice__icon">🎁</div>
-            <h2>{t.defaultTitle}</h2>
+            <div className="choice__head">
+              <div className="choice__icon">🎁</div>
+              <h2>{t.defaultTitle}</h2>
+            </div>
             <p>{t.defaultDesc}</p>
             <div className="choice__actions">
               <button className="btn btn--gold" onClick={onUseDefault}>

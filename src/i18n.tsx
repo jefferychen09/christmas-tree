@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { PhotoItem } from './gifts';
 
-export type Lang = 'en' | 'zh';
+export type Lang = 'en' | 'zh' | 'ja';
+export const LANGS: Lang[] = ['en', 'zh', 'ja'];
 
 const en = {
   eyebrow: 'Christmas Memory Tree',
@@ -13,6 +14,7 @@ const en = {
   processing: 'Processing…',
   decorateWith: (n: number) => (n ? `Decorate with ${n} photo${n > 1 ? 's' : ''}` : 'Decorate the tree'),
   uploadHint: 'You can also drag photos here. Photos stay in your browser and are never uploaded.',
+  uploadHintTouch: 'Photos stay in your browser and are never uploaded.',
   defaultTitle: 'Use the gift set',
   defaultDesc: 'The tree fills with Christmas gift pictures. Tap a picture to enlarge it, or tap a gift box to unwrap a surprise.',
   start: 'Start',
@@ -24,6 +26,7 @@ const en = {
   hintGift: 'Tap a gift box to unwrap 🎁',
   hintStar: 'Tap the star ⭐',
   hintDrag: 'Drag to rotate · scroll to zoom',
+  hintDragTouch: 'Drag to rotate · pinch to zoom',
   statMemories: 'Memories',
   statGifts: 'Gifts',
   unitPhotos: 'photos',
@@ -109,6 +112,7 @@ const zh: typeof en = {
   processing: '处理中…',
   decorateWith: (n: number) => (n ? `用 ${n} 张照片装饰` : '用照片装饰圣诞树'),
   uploadHint: '也可以把照片直接拖到这里 · 照片只在你的浏览器里处理，不会上传到服务器',
+  uploadHintTouch: '照片只在你的浏览器里处理，不会上传到服务器',
   defaultTitle: '使用默认礼品',
   defaultDesc: '树上挂满各种圣诞礼品图，点开放大；点礼盒还能拆出随机礼物',
   start: '直接开始',
@@ -120,6 +124,7 @@ const zh: typeof en = {
   hintGift: '点礼盒拆礼物 🎁',
   hintStar: '点星星有惊喜 ⭐',
   hintDrag: '拖动旋转 · 滚轮缩放',
+  hintDragTouch: '拖动旋转 · 双指缩放',
   statMemories: 'Memories',
   statGifts: 'Gifts',
   unitPhotos: '张照片',
@@ -190,7 +195,100 @@ const zh: typeof en = {
   },
 };
 
-const dict = { en, zh };
+const ja: typeof en = {
+  eyebrow: 'Christmas Memory Tree',
+  subtitle: 'ツリーの飾りつけを選んでください',
+  uploadTitle: '自分の写真を使う',
+  uploadDesc: '写真がツリーに吊るされたポラロイドになります。タップすると大きく見られます。',
+  choosePhotos: '写真を選ぶ',
+  addMore: '写真を追加',
+  processing: '処理中…',
+  decorateWith: (n: number) => (n ? `${n} 枚の写真で飾る` : '写真でツリーを飾る'),
+  uploadHint: 'ここに写真をドラッグしてもOK · 写真はブラウザの中だけで処理され、サーバーには送信されません',
+  uploadHintTouch: '写真はブラウザの中だけで処理され、サーバーには送信されません',
+  defaultTitle: 'ギフトセットを使う',
+  defaultDesc: 'クリスマスギフトのイラストでツリーがいっぱいに。タップで拡大、プレゼント箱をタップするとサプライズが出てきます。',
+  start: 'はじめる',
+  close: '閉じる',
+  remove: '削除',
+  prev: '前へ',
+  next: '次へ',
+  hintPhoto: '写真をタップで拡大',
+  hintGift: 'プレゼント箱をタップ 🎁',
+  hintStar: '星をタップしてみて ⭐',
+  hintDrag: 'ドラッグで回転 · スクロールでズーム',
+  hintDragTouch: 'ドラッグで回転 · ピンチでズーム',
+  statMemories: 'Memories',
+  statGifts: 'Gifts',
+  unitPhotos: '枚',
+  unitGifts: '種類',
+  changePhotos: '🖼 写真を変更',
+  gestureOn: '✋ ジェスチャー',
+  gestureOff: '✋ ジェスチャーをオフ',
+  cameraShow: '📹 カメラ映像',
+  cameraHide: '📹 映像を隠す',
+  gestureTip: '手を開く：散らす · グー：集める · 手を動かす：回転',
+  assemble: '✨ ツリーにする',
+  scatter: '💫 散らす',
+  unwrapping: '開けています…',
+  youGot: (name: string) => `🎉 ${name} が出ました！`,
+  surprise: 'サプライズ',
+  keepIt: 'もらっておく',
+  another: 'もう一つ開ける',
+  statusLoading: 'ジェスチャーモデルをダウンロード中…',
+  statusCamera: 'カメラの許可を待っています…',
+  statusReady: '準備OK：カメラに手を映してください',
+  statusTracking: '手を認識しました',
+  statusDenied: 'カメラの使用が拒否されました。ブラウザでカメラを許可してから、もう一度お試しください。',
+  statusError: (m: string) => `ジェスチャーを開始できませんでした：${m}`,
+  guideTitle: 'ジェスチャー',
+  guideTryHint: '行をタップすると試せます',
+  loveMessage: 'メリークリスマス 🎄',
+  cardCtaTitle: '大切な人にクリスマスカードを',
+  cardCtaDesc: 'ひとこと書くとリンクができます。相手が開くとツリーが灯り、あなたのカードが待っています。',
+  writeCard: '💌 カードを書く',
+  sendCard: '💌 カードを送る',
+  reopenCard: '💌 カード',
+  composerTitle: 'クリスマスカードを書く',
+  toLabel: 'あて先',
+  toPlaceholder: '相手の名前',
+  msgLabel: 'メッセージ',
+  msgPlaceholder: 'あたたかい言葉をどうぞ…',
+  fromLabel: '差出人',
+  fromPlaceholder: 'あなたの名前（省略可）',
+  samplesLabel: '迷ったらこちら',
+  samples: ['あたたかいクリスマスと、輝く新年を。', '今年もたくさんありがとう。メリークリスマス！', '今年いちばん明るい星をあなたに。'],
+  createLink: 'リンクを作成',
+  needFields: '名前とメッセージを入力してください',
+  linkReady: 'リンクができました',
+  linkHint: 'LINE などのチャットで送ってください。リンクにはあなたの言葉が入っていて、ツリーはギフトセットで飾られます。アップロードした写真はこの端末にだけ残ります。',
+  copy: 'リンクをコピー',
+  copied: 'コピーしました ✓',
+  copyFail: '上のリンクを選択してコピーしてください',
+  preview: '開いてみる',
+  edit: '編集',
+  cardYear: (y: number) => `Christmas · ${y}`,
+  dear: (name: string) => `${name} へ`,
+  signed: (name: string) => `${name} より`,
+  envelopeFor: (name: string) => `${name} へ`,
+  tapToOpen: 'タップして開ける',
+  exploreTree: 'ツリーを見る',
+  makeOwn: '自分も書く',
+  gestures: {
+    Closed_Fist: ['✊', 'グー', 'ツリーにする'],
+    Open_Palm: ['🖐', 'パー', '散らす'],
+    MoveX: ['↔️', '手を左右に動かす', 'ツリーを回転'],
+    MoveY: ['↕️', '手を上下に動かす', '視点を上下に'],
+    Pinch: ['🤏', '親指と人差し指をつまむ / 広げる', 'ズームアウト / ズームイン'],
+    Pointing_Up: ['☝️', '人差し指を立てる', 'プレゼントを開ける'],
+    Victory: ['✌️', 'ピース', 'ランダムに写真を表示'],
+    Thumb_Up: ['👍', 'いいね', '次の写真 / もう一つ開ける'],
+    Thumb_Down: ['👎', '親指を下に', 'ポップアップを閉じる'],
+    ILoveYou: ['🤟', 'サプライズサイン', '花火のサプライズ'],
+  },
+};
+
+const dict = { en, zh, ja };
 export type Dict = typeof en;
 export type GestureKey = keyof Dict['gestures'];
 
@@ -199,7 +297,7 @@ const STORAGE_KEY = 'christmas-tree-lang';
 const readLang = (): Lang => {
   try {
     const v = localStorage.getItem(STORAGE_KEY);
-    if (v === 'en' || v === 'zh') return v;
+    if (v && (LANGS as string[]).includes(v)) return v as Lang;
   } catch {
     /* 隐私模式等情况下拿不到 localStorage，用默认值 */
   }
@@ -216,8 +314,8 @@ export function LangProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(readLang);
 
   useEffect(() => {
-    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-    document.title = lang === 'zh' ? '圣诞记忆树' : 'Christmas Memory Tree';
+    document.documentElement.lang = { en: 'en', zh: 'zh-CN', ja: 'ja' }[lang];
+    document.title = { en: 'Christmas Memory Tree', zh: '圣诞记忆树', ja: 'クリスマス・メモリーツリー' }[lang];
   }, [lang]);
 
   // persist=false：只切换这一次（例如打开别人用中文写的贺卡），不改掉访客自己记住的语言
@@ -237,18 +335,26 @@ export function LangProvider({ children }: { children: ReactNode }) {
 export const useLang = () => useContext(LangContext);
 
 /** 礼品/照片在当前语言下的名字 */
-export const photoName = (p: PhotoItem | undefined, lang: Lang) => (lang === 'en' ? p?.nameEn ?? p?.name : p?.name) ?? '';
+export const photoName = (p: PhotoItem | undefined, lang: Lang) =>
+  (lang === 'en' ? p?.nameEn ?? p?.name : lang === 'ja' ? p?.nameJa ?? p?.nameEn ?? p?.name : p?.name) ?? '';
 
 export function LangToggle() {
   const { lang, setLang } = useLang();
+  const labels: Record<Lang, [string, string]> = { en: ['EN', 'English'], zh: ['中', '中文'], ja: ['日', '日本語'] };
   return (
-    <div className="lang-toggle" role="group" aria-label="Language / 语言">
-      <button className={lang === 'en' ? 'is-active' : ''} aria-pressed={lang === 'en'} onClick={() => setLang('en')}>
-        EN
-      </button>
-      <button className={lang === 'zh' ? 'is-active' : ''} aria-pressed={lang === 'zh'} onClick={() => setLang('zh')}>
-        中
-      </button>
+    <div className="lang-toggle" role="group" aria-label="Language / 语言 / 言語">
+      {LANGS.map((l) => (
+        <button
+          key={l}
+          className={lang === l ? 'is-active' : ''}
+          aria-pressed={lang === l}
+          aria-label={labels[l][1]}
+          lang={l}
+          onClick={() => setLang(l)}
+        >
+          {labels[l][0]}
+        </button>
+      ))}
     </div>
   );
 }

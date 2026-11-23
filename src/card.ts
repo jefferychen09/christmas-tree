@@ -45,7 +45,7 @@ export function readCardFromHash(): Card | null {
       to: clip(raw.t, LIMITS.to),
       msg: clip(raw.m, LIMITS.msg),
       from: clip(raw.f, LIMITS.from),
-      lang: raw.l === 'zh' ? 'zh' : 'en',
+      lang: raw.l === 'zh' || raw.l === 'ja' ? raw.l : 'en',
     };
     return card.to && card.msg ? card : null;
   } catch {

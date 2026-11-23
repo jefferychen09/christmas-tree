@@ -22,6 +22,11 @@
   color-scheme: dark;
 }
 
+/* 日文用日文字体（否则 Windows 上会用中文字形显示假名和汉字） */
+:root:lang(ja) {
+  --sans: system-ui, -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', 'Meiryo', 'Noto Sans JP', sans-serif;
+}
+
 * { box-sizing: border-box; }
 
 html, body, #root {
@@ -35,7 +40,8 @@ html, body, #root {
   -webkit-font-smoothing: antialiased;
 }
 
-button { font-family: inherit; }
+button { font-family: inherit; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+body { overscroll-behavior: none; }
 
 .app { position: fixed; inset: 0; }
 .stage { position: absolute; inset: 0; transition: filter 0.5s ease; }
@@ -183,6 +189,7 @@ button { font-family: inherit; }
 .choice--upload { border-style: dashed; }
 .choice.is-dragging { border-color: var(--gold); background: rgba(255, 215, 0, 0.08); }
 .choice--default { background: radial-gradient(circle at 80% 0%, rgba(198, 40, 40, 0.28), transparent 60%), var(--glass-fill); }
+.choice__head { display: flex; flex-direction: column; }
 .choice__icon { font-size: 30px; }
 .choice h2 { margin: 8px 0 4px; font-size: 19px; color: var(--ink); }
 .choice p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.6; }
@@ -541,7 +548,18 @@ button.guide__row:hover { background: rgba(255, 215, 0, 0.07); }
   .welcome__card { padding: 28px 16px 20px; border-radius: 18px; }
   .choices { grid-template-columns: 1fr; }
   .thumbs { grid-template-columns: repeat(4, 1fr); }
-  .welcome { padding-top: calc(64px + env(safe-area-inset-top, 0px)); }
+  .welcome { top: calc(56px + env(safe-area-inset-top, 0px)); padding: 4px 12px calc(16px + env(safe-area-inset-bottom, 0px)); }
+  .welcome__card { padding: 20px 14px 16px; }
+  .title { font-size: 46px; }
+  .subtitle { margin-bottom: 14px; font-size: 14px; }
+  .choices { gap: 10px; }
+  .choice { padding: 14px 16px 16px; border-radius: 16px; }
+  .choice__head { flex-direction: row; align-items: center; gap: 10px; }
+  .choice__icon { font-size: 22px; }
+  .choice h2 { margin: 0; font-size: 17px; }
+  .choice p { margin-top: 4px; font-size: 13px; line-height: 1.55; }
+  .choice__actions { padding-top: 12px; }
+  .choice .hint { margin-top: 8px; }
   .hud--hint {
     top: calc(14px + env(safe-area-inset-top, 0px)); left: 16px; transform: none;
     justify-content: flex-start; max-width: calc(100vw - 130px); font-size: 11px;
@@ -559,7 +577,33 @@ button.guide__row:hover { background: rgba(255, 215, 0, 0.07); }
   .card-cta { flex-direction: column; align-items: stretch; padding: 16px; }
   .composer { grid-template-columns: minmax(0, 1fr); padding: 24px 16px 20px; border-radius: 20px; }
   .composer__preview { display: none; }
+  /* iPhone 的 Safari 在输入框字号小于 16px 时会自动放大整页，这里统一 16px */
+  .field__input, .composer__link { font-size: 16px; }
   .composer__title { font-size: 19px; padding-right: 40px; }
   .xcard { padding: 28px 22px 24px; }
   .xcard__title { font-size: 42px; }
+}
+
+/* ---------------- 手机横屏（屏幕很矮） ---------------- */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hud--hint {
+    top: calc(10px + env(safe-area-inset-top, 0px));
+    font-size: 11px; flex-wrap: nowrap; max-width: calc(100vw - 280px);
+  }
+  .hud--hint span { padding: 4px 10px; white-space: nowrap; }
+  .hud--hint span:first-child, .hud--hint span:last-child { display: none; }
+  .lang-toggle { top: calc(8px + env(safe-area-inset-top, 0px)); }
+  .hud--stats { bottom: calc(12px + env(safe-area-inset-bottom, 0px)); left: calc(16px + env(safe-area-inset-left, 0px)); }
+  .stat__value { font-size: 20px; }
+  .hud--buttons { bottom: calc(10px + env(safe-area-inset-bottom, 0px)); right: calc(14px + env(safe-area-inset-right, 0px)); gap: 6px; }
+  .btn--sm { padding: 7px 12px; font-size: 12px; }
+  .btn--main { padding: 8px 16px; font-size: 13px; }
+  .hud--status { top: 46px; }
+  .guide { top: calc(52px + env(safe-area-inset-top, 0px)); width: 220px; max-height: calc(100% - 110px); }
+  .camera--show { width: 140px; top: 52px; }
+  .composer { grid-template-columns: minmax(0, 1fr); width: min(560px, 100%); max-height: calc(100dvh - 24px); padding: 22px 20px 18px; }
+  .composer__preview { display: none; }
+  .composer__title { margin-bottom: 12px; font-size: 19px; padding-right: 40px; }
+  .field__input, .composer__link { font-size: 16px; }
+  .modal { padding: 12px; }
 }
