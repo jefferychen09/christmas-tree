@@ -461,6 +461,240 @@ const illustrations: Illustration[] = [
       sparkle(ctx, 100, 120, 22); sparkle(ctx, 420, 110, 16); sparkle(ctx, 410, 420, 20); sparkle(ctx, 90, 410, 14);
     },
   },
+  {
+    name: '驯鹿',
+    nameEn: 'Reindeer',
+    nameJa: 'トナカイ',
+    bg: ['#3b5f8a', '#101e33'],
+    draw(ctx) {
+      const fur = '#8d5a33', light = '#c89b6d', dark = '#4e2f17';
+      // 鹿角（先画，头会盖住根部）
+      ctx.strokeStyle = '#e6c79c'; ctx.lineWidth = 14; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(205, 150); ctx.quadraticCurveTo(170, 100, 150, 40);
+      ctx.moveTo(176, 95); ctx.lineTo(118, 78);
+      ctx.moveTo(160, 62); ctx.lineTo(186, 28);
+      ctx.moveTo(307, 150); ctx.quadraticCurveTo(342, 100, 362, 40);
+      ctx.moveTo(336, 95); ctx.lineTo(394, 78);
+      ctx.moveTo(352, 62); ctx.lineTo(326, 28);
+      ctx.stroke();
+      // 耳朵
+      ellipse(ctx, 160, 175, 46, 20, -0.5, fur); ellipse(ctx, 352, 175, 46, 20, 0.5, fur);
+      ellipse(ctx, 162, 175, 28, 9, -0.5, light); ellipse(ctx, 350, 175, 28, 9, 0.5, light);
+      // 脖子 + 头 + 口鼻
+      rrect(ctx, 206, 300, 100, 140, 40, fur);
+      ellipse(ctx, 256, 230, 92, 100, 0, fur);
+      ellipse(ctx, 256, 292, 62, 46, 0, light);
+      // 眼睛、鼻子、嘴、脸颊
+      circle(ctx, 222, 215, 12, dark); circle(ctx, 290, 215, 12, dark);
+      circle(ctx, 226, 211, 4, '#fff'); circle(ctx, 294, 211, 4, '#fff');
+      ellipse(ctx, 256, 272, 24, 18, 0, '#3e2723');
+      circle(ctx, 249, 266, 5, 'rgba(255,255,255,0.5)');
+      ctx.strokeStyle = dark; ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.arc(256, 300, 16, 0.2 * Math.PI, 0.8 * Math.PI); ctx.stroke();
+      circle(ctx, 200, 262, 12, 'rgba(255,138,128,0.45)'); circle(ctx, 312, 262, 12, 'rgba(255,138,128,0.45)');
+      // 红项圈 + 金铃铛
+      rrect(ctx, 196, 352, 120, 24, 12, '#d32f2f');
+      circle(ctx, 256, 392, 22, '#ffca28');
+      circle(ctx, 249, 385, 6, 'rgba(255,255,255,0.6)');
+      rrect(ctx, 246, 398, 20, 5, 2, '#b8860b');
+      sparkle(ctx, 90, 300, 16); sparkle(ctx, 430, 280, 20); sparkle(ctx, 420, 440, 12);
+    },
+  },
+  {
+    name: '圣诞帽',
+    nameEn: 'Santa Hat',
+    nameJa: 'サンタ帽',
+    bg: ['#24585e', '#0b2124'],
+    draw(ctx) {
+      shadow(ctx, 256, 430, 150);
+      // 帽身：向右垂下的圆锥
+      const red = ctx.createLinearGradient(140, 0, 380, 0);
+      red.addColorStop(0, '#b71c1c'); red.addColorStop(0.55, '#e53935'); red.addColorStop(1, '#a31515');
+      ctx.beginPath();
+      ctx.moveTo(140, 360);
+      ctx.bezierCurveTo(150, 230, 210, 130, 300, 115);
+      ctx.bezierCurveTo(350, 108, 392, 140, 400, 205);
+      ctx.bezierCurveTo(372, 170, 340, 168, 330, 200);
+      ctx.bezierCurveTo(345, 250, 370, 310, 372, 360);
+      ctx.closePath();
+      ctx.fillStyle = red; ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 10; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(200, 330); ctx.quadraticCurveTo(220, 220, 290, 150); ctx.stroke();
+      // 毛绒帽边
+      rrect(ctx, 118, 340, 276, 70, 35, '#fafafa');
+      for (let i = 0; i < 8; i++) circle(ctx, 138 + i * 34, 346 + (i % 2) * 6, 16, '#ffffff');
+      for (let i = 0; i < 8; i++) circle(ctx, 140 + i * 33, 404 - (i % 2) * 5, 14, '#eeeeee');
+      // 绒球
+      const pom = ctx.createRadialGradient(392, 205, 6, 400, 215, 40);
+      pom.addColorStop(0, '#ffffff'); pom.addColorStop(1, '#d9e1ea');
+      circle(ctx, 400, 215, 38, pom);
+      sparkle(ctx, 100, 140, 20); sparkle(ctx, 200, 70, 14); sparkle(ctx, 440, 330, 14);
+    },
+  },
+  {
+    name: '小火车',
+    nameEn: 'Toy Train',
+    nameJa: 'おもちゃの汽車',
+    bg: ['#4a3a6e', '#181026'],
+    draw(ctx) {
+      // 铁轨
+      rrect(ctx, 40, 428, 432, 10, 5, '#8d6e63');
+      for (let x = 60; x < 470; x += 42) rrect(ctx, x, 438, 22, 14, 3, '#5d4037');
+      // 烟
+      circle(ctx, 190, 150, 22, 'rgba(255,255,255,0.75)');
+      circle(ctx, 160, 112, 30, 'rgba(255,255,255,0.6)');
+      circle(ctx, 120, 70, 36, 'rgba(255,255,255,0.45)');
+      // 烟囱
+      rrect(ctx, 176, 175, 40, 80, 6, '#37474f');
+      rrect(ctx, 166, 168, 60, 18, 6, '#263238');
+      // 锅炉
+      const boiler = ctx.createLinearGradient(0, 245, 0, 375);
+      boiler.addColorStop(0, '#ef5350'); boiler.addColorStop(1, '#b71c1c');
+      rrect(ctx, 120, 250, 200, 125, 30, boiler);
+      rrect(ctx, 175, 250, 14, 125, 4, '#ffca28'); rrect(ctx, 245, 250, 14, 125, 4, '#ffca28');
+      circle(ctx, 120, 300, 18, '#fff59d');
+      // 驾驶室
+      rrect(ctx, 300, 190, 120, 185, 12, '#2e7d32');
+      rrect(ctx, 288, 176, 144, 26, 8, '#1b5e20');
+      rrect(ctx, 326, 220, 68, 56, 8, '#fff59d');
+      ctx.fillStyle = '#1b5e20'; ctx.fillRect(357, 220, 6, 56);
+      // 排障器 + 底盘
+      ctx.beginPath(); ctx.moveTo(120, 340); ctx.lineTo(86, 400); ctx.lineTo(132, 400); ctx.closePath();
+      ctx.fillStyle = '#ffb300'; ctx.fill();
+      rrect(ctx, 110, 370, 320, 22, 8, '#263238');
+      // 轮子 + 连杆
+      const wheel = (x: number, r: number) => {
+        circle(ctx, x, 400, r, '#212121');
+        circle(ctx, x, 400, r * 0.55, '#ffca28');
+        circle(ctx, x, 400, r * 0.2, '#212121');
+      };
+      wheel(170, 30); wheel(250, 30); wheel(380, 30);
+      ctx.strokeStyle = '#b0bec5'; ctx.lineWidth = 8; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(170, 408); ctx.lineTo(250, 408); ctx.stroke();
+      sparkle(ctx, 430, 110, 22); sparkle(ctx, 330, 80, 14); sparkle(ctx, 70, 300, 12);
+    },
+  },
+  {
+    name: '雪花水晶球',
+    nameEn: 'Snow Globe',
+    nameJa: 'スノードーム',
+    bg: ['#355c4a', '#0f2219'],
+    draw(ctx) {
+      shadow(ctx, 256, 462, 140);
+      // 木底座
+      const wood = ctx.createLinearGradient(0, 370, 0, 460);
+      wood.addColorStop(0, '#8d5a33'); wood.addColorStop(1, '#4e2f17');
+      ctx.beginPath(); ctx.moveTo(150, 375); ctx.lineTo(362, 375); ctx.lineTo(390, 455); ctx.lineTo(122, 455); ctx.closePath();
+      ctx.fillStyle = wood; ctx.fill();
+      rrect(ctx, 140, 405, 232, 16, 6, '#ffca28');
+      // 玻璃球
+      const glass = ctx.createRadialGradient(215, 170, 20, 256, 230, 160);
+      glass.addColorStop(0, 'rgba(225,245,254,0.9)'); glass.addColorStop(0.7, 'rgba(129,212,250,0.55)'); glass.addColorStop(1, 'rgba(41,121,255,0.55)');
+      circle(ctx, 256, 230, 150, glass);
+      ctx.save();
+      ctx.beginPath(); ctx.arc(256, 230, 150, 0, Math.PI * 2); ctx.clip();
+      ellipse(ctx, 256, 360, 170, 60, 0, '#fafafa');
+      // 球里的小树
+      const tier = (base: number, half: number, h: number, color: string) => {
+        ctx.beginPath(); ctx.moveTo(256, base - h); ctx.lineTo(256 + half, base); ctx.lineTo(256 - half, base); ctx.closePath();
+        ctx.fillStyle = color; ctx.fill();
+      };
+      rrect(ctx, 246, 300, 20, 36, 4, '#6d4c41');
+      tier(310, 70, 80, '#2e7d32'); tier(262, 56, 72, '#388e3c'); tier(216, 42, 64, '#43a047');
+      starPath(ctx, 256, 150, 18, 7); ctx.fillStyle = '#ffd54f'; ctx.fill();
+      circle(ctx, 230, 290, 6, '#e53935'); circle(ctx, 284, 250, 6, '#ffca28'); circle(ctx, 240, 220, 5, '#e53935'); circle(ctx, 270, 300, 6, '#42a5f5');
+      for (let i = 0; i < 40; i++) circle(ctx, 110 + ((i * 53) % 300), 90 + ((i * 97) % 260), 2 + (i % 3), 'rgba(255,255,255,0.9)');
+      ctx.restore();
+      // 玻璃高光
+      ellipse(ctx, 190, 150, 40, 18, -0.7, 'rgba(255,255,255,0.5)');
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.arc(256, 230, 150, 0, Math.PI * 2); ctx.stroke();
+      sparkle(ctx, 80, 110, 18); sparkle(ctx, 440, 130, 22); sparkle(ctx, 450, 400, 12);
+    },
+  },
+  {
+    name: '圣诞蜡烛',
+    nameEn: 'Christmas Candles',
+    nameJa: 'クリスマスキャンドル',
+    bg: ['#5a2a1a', '#1e0c06'],
+    draw(ctx) {
+      const glow = ctx.createRadialGradient(256, 170, 10, 256, 200, 230);
+      glow.addColorStop(0, 'rgba(255,213,79,0.45)'); glow.addColorStop(1, 'rgba(255,213,79,0)');
+      ctx.fillStyle = glow; ctx.fillRect(0, 0, S, S);
+      shadow(ctx, 256, 448, 150);
+      // 金色托盘
+      ellipse(ctx, 256, 432, 160, 30, 0, '#c79100');
+      ellipse(ctx, 256, 424, 146, 22, 0, '#ffd54f');
+      const candle = (x: number, y0: number, w: number, color: string, shade: string) => {
+        const g = ctx.createLinearGradient(x, 0, x + w, 0);
+        g.addColorStop(0, shade); g.addColorStop(0.4, color); g.addColorStop(1, shade);
+        rrect(ctx, x, y0, w, 425 - y0, [10, 10, 4, 4], g);
+        // 流下来的蜡油
+        ellipse(ctx, x + w / 2, y0 + 4, w / 2, 9, 0, color);
+        rrect(ctx, x + w * 0.15, y0, 12, 46, 6, color);
+        rrect(ctx, x + w * 0.62, y0, 10, 30, 5, color);
+        // 灯芯 + 火焰
+        const fx = x + w / 2, fy = y0 - 12;
+        ctx.strokeStyle = '#3e2723'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(fx, y0 + 2); ctx.lineTo(fx, fy); ctx.stroke();
+        const flame = ctx.createRadialGradient(fx, fy - 14, 2, fx, fy - 18, 30);
+        flame.addColorStop(0, '#fffde7'); flame.addColorStop(0.45, '#ffd54f'); flame.addColorStop(1, '#ff6f00');
+        ctx.beginPath();
+        ctx.moveTo(fx, fy - 56);
+        ctx.bezierCurveTo(fx + 22, fy - 28, fx + 18, fy + 2, fx, fy + 2);
+        ctx.bezierCurveTo(fx - 18, fy + 2, fx - 22, fy - 28, fx, fy - 56);
+        ctx.fillStyle = flame; ctx.fill();
+      };
+      candle(150, 250, 64, '#e53935', '#b71c1c');
+      candle(236, 190, 72, '#fff8e1', '#e6d5b8');
+      candle(330, 280, 58, '#43a047', '#2e7d32');
+      holly(ctx, 256, 428, 0.9);
+      sparkle(ctx, 90, 120, 16); sparkle(ctx, 430, 110, 20); sparkle(ctx, 80, 330, 12);
+    },
+  },
+  {
+    name: '姜饼屋',
+    nameEn: 'Gingerbread House',
+    nameJa: 'お菓子の家',
+    bg: ['#6b2a4a', '#260c1a'],
+    draw(ctx) {
+      const cookie = '#b8652e', dark = '#8d4a1f', icing = '#fafafa';
+      ellipse(ctx, 256, 452, 210, 34, 0, '#f5f5f5');
+      // 烟囱（屋顶会盖住下半截）
+      rrect(ctx, 300, 120, 44, 80, 4, dark);
+      rrect(ctx, 294, 112, 56, 18, 6, icing);
+      // 墙 + 屋顶
+      rrect(ctx, 140, 250, 232, 190, 8, cookie);
+      ctx.beginPath(); ctx.moveTo(110, 262); ctx.lineTo(256, 130); ctx.lineTo(402, 262); ctx.closePath();
+      ctx.fillStyle = dark; ctx.fill();
+      // 屋檐糖霜
+      for (let i = 0; i <= 8; i++) {
+        const t = i / 8;
+        circle(ctx, 110 + 146 * t, 262 - 132 * t, 13, icing);
+        circle(ctx, 402 - 146 * t, 262 - 132 * t, 13, icing);
+      }
+      // 屋顶上的软糖
+      const gum = ['#e53935', '#43a047', '#fdd835', '#1e88e5'];
+      for (let i = 0; i < 4; i++) circle(ctx, 190 + i * 44, 225 - Math.abs(1.5 - i) * 10, 10, gum[i]);
+      // 门
+      rrect(ctx, 226, 340, 60, 100, [30, 30, 4, 4], '#5d3a1a');
+      ctx.strokeStyle = icing; ctx.lineWidth = 6; ctx.setLineDash([10, 8]);
+      ctx.beginPath(); ctx.roundRect(226, 340, 60, 100, [30, 30, 4, 4]); ctx.stroke();
+      ctx.setLineDash([]);
+      circle(ctx, 274, 392, 5, '#ffd54f');
+      // 窗
+      const win = (x: number) => {
+        rrect(ctx, x, 290, 54, 50, 6, '#ffe082');
+        ctx.strokeStyle = icing; ctx.lineWidth = 6;
+        ctx.strokeRect(x, 290, 54, 50);
+        ctx.beginPath(); ctx.moveTo(x + 27, 290); ctx.lineTo(x + 27, 340); ctx.moveTo(x, 315); ctx.lineTo(x + 54, 315); ctx.stroke();
+      };
+      win(160); win(298);
+      for (let x = 152; x < 372; x += 22) circle(ctx, x, 436, 6, icing);
+      sparkle(ctx, 90, 120, 18); sparkle(ctx, 430, 100, 16); sparkle(ctx, 440, 360, 12);
+    },
+  },
 ];
 
 const drawBackground = (ctx: Ctx, [inner, outer]: [string, string]) => {
