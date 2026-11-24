@@ -4,11 +4,14 @@ import '@fontsource/great-vibes/latin-400.css'; // 花体字打包进网站，�
 import './index.css';
 import App from './App';
 import { LangProvider } from './i18n';
+import { AuthProvider } from './auth';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <LangProvider>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </LangProvider>
   </StrictMode>,
 );

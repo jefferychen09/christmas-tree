@@ -15,6 +15,12 @@ import GreetingCard from './ui/GreetingCard';
 import CardComposer from './ui/CardComposer';
 import { cardHash, readCardFromHash, type Card } from './card';
 import { IS_TOUCH } from './device';
+import { api, CLOUD_ENABLED, photoUrl, thumbSrc } from './api';
+import { useAuth } from './auth';
+import AccountButton from './ui/AccountButton';
+import AuthModal from './ui/AuthModal';
+import AccountModal from './ui/AccountModal';
+import ShareModal from './ui/ShareModal';
 
 // 手势模块按需加载（只有点了「手势控制」才下载 MediaPipe）
 const GestureController = lazy(() => import('./ui/GestureController'));
@@ -22,7 +28,18 @@ const GestureController = lazy(() => import('./ui/GestureController'));
 const GESTURES_ENABLED = import.meta.env.VITE_DISABLE_GESTURES !== '1';
 const CELEBRATE_MS = 8000;
 
-type Mode = 'default' | 'upload';
+type Mode = 'default' | 'upload' | 'shared';
+const NO_PHOTOS: PhotoItem[] = [];
+
+/** 先在浏览器里解码一遍：坏图会让整棵树的照片都加载失败，提前丢掉 */
+const decodes = (src: string) => {
+  const img = new Image();
+  img.src = src;
+  return img.decode().then(
+    () => true,
+    () => false,
+  );
+};
 
 type CardView = 'hidden' | 'sealed' | 'open';
 const ENVELOPE_DELAY = 1800; // 树聚合好之后再出现信封
@@ -49,9 +66,63 @@ export default function App() {
   const [status, setStatus] = useState<GestureStatus | null>(null);
   const [activeGesture, setActiveGesture] = useState<GestureKey | null>(null);
   const motion = useRef<GestureMotion>({ yaw: 0, pitch: 0, zoom: 0 });
+  // 账号 & 大家的树
+  const { user } = useAuth();
+  const [shared, setShared] = useState<PhotoItem[] | null>(null);
+  const [sharedFailed, setSharedFailed] = useState(false);
+  const [authFor, setAuthFor] = useState<null | 'account' | 'share'>(null);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
-  const treePhotos = mode === 'upload' ? uploads : defaultGifts;
-  const photoUrls = useMemo(() => treePhotos.map((p) => p.url), [treePhotos]);
+  const treePhotos = mode === 'upload' ? uploads : mode === 'shared' ? (shared ?? NO_PHOTOS) : defaultGifts;
+  // 大家的树用小图做贴图，点开再下载大图
+  const photoUrls = useMemo(() => treePhotos.map((p) => p.thumb ?? p.url), [treePhotos]);
+
+  const loadShared = useCallback(async () => {
+    setSharedFailed(false);
+    try {
+      const { photos } = await api.photos();
+      const items: PhotoItem[] = photos.map((p) => ({ url: photoUrl(p.id), thumb: thumbSrc(p), name: p.by, shared: p }));
+      const ok = await Promise.all(items.map((it) => decodes(it.thumb!)));
+      setShared(items.filter((_, i) => ok[i]));
+    } catch {
+      setSharedFailed(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (mode === 'shared') loadShared();
+  }, [mode, loadShared]);
+
+  // 退出登录后，关掉只有登录才能用的弹窗
+  useEffect(() => {
+    if (user) return;
+    setShareOpen(false);
+    setAccountOpen(false);
+  }, [user]);
+
+  const openAccount = useCallback(() => (user ? setAccountOpen(true) : setAuthFor('account')), [user]);
+  const openShare = useCallback(() => (user ? setShareOpen(true) : setAuthFor('share')), [user]);
+  // 为了分享照片而登录的，登录后直接打开分享
+  const onAuthDone = useCallback(() => {
+    if (authFor === 'share') setShareOpen(true);
+    setAuthFor(null);
+  }, [authFor]);
+  const canDelete = useCallback(
+    (p: PhotoItem) => !!user && !!p.shared && (p.shared.userId === user.id || user.admin),
+    [user],
+  );
+  const deleteShared = useCallback(
+    async (p: PhotoItem) => {
+      if (!p.shared) return;
+      await api.remove(p.shared.id);
+      setPhotoIndex(null);
+      await loadShared();
+    },
+    [loadShared],
+  );
+  const sharedNotice =
+    mode !== 'shared' ? null : sharedFailed ? 'error' : shared === null ? 'loading' : shared.length === 0 ? 'empty' : null;
 
   const start = (next: Mode, photos?: PhotoItem[]) => {
     if (photos) setUploads(photos);
@@ -127,10 +198,11 @@ export default function App() {
   const onPhotoClick = useCallback((i: number) => setPhotoIndex(i), []);
   const onGiftClick = useCallback(() => setGiftOpen(true), []);
   const closeGift = useCallback(() => setGiftOpen(false), []);
-  const modalOpen = showWelcome || photoIndex !== null || giftOpen || composerOpen || cardView !== 'hidden';
+  const accountUi = authFor !== null || accountOpen || shareOpen;
+  const modalOpen = showWelcome || photoIndex !== null || giftOpen || composerOpen || cardView !== 'hidden' || accountUi;
 
   // 手势（或说明面板里点击）触发的一次性动作。用 ref 读最新状态，避免回调频繁变化
-  const blocking = showWelcome || composerOpen || cardView !== 'hidden';
+  const blocking = showWelcome || composerOpen || cardView !== 'hidden' || accountUi;
   const live = useRef({ blocking, photoIndex, giftOpen, count: treePhotos.length });
   live.current = { blocking, photoIndex, giftOpen, count: treePhotos.length };
   const onAction = useCallback(
@@ -222,7 +294,10 @@ export default function App() {
         </Suspense>
       )}
 
-      <LangToggle />
+      <div className="corner">
+        {CLOUD_ENABLED && <AccountButton onClick={openAccount} />}
+        <LangToggle />
+      </div>
 
       {!showWelcome && (
         <>
@@ -234,15 +309,27 @@ export default function App() {
           </div>
 
           <div className="hud hud--stats">
-            <p className="stat__label">{mode === 'upload' ? t.statMemories : t.statGifts}</p>
+            <p className="stat__label">{mode === 'upload' ? t.statMemories : mode === 'shared' ? t.statShared : t.statGifts}</p>
             <p className="stat__value">
-              {treePhotos.length} <span>{mode === 'upload' ? t.unitPhotos : t.unitGifts}</span>
+              {treePhotos.length} <span>{mode === 'default' ? t.unitGifts : t.unitPhotos}</span>
             </p>
           </div>
 
           {gestureOn && statusText && <div className={`hud hud--status ${statusFailed ? 'is-error' : ''}`}>{statusText}</div>}
 
           {gestureOn && <GestureGuide active={activeGesture} onTry={onTryGesture} />}
+
+          {sharedNotice === 'loading' && <div className="hud hud--notice">{t.sharedLoading}</div>}
+          {sharedNotice === 'error' && (
+            <button className="hud hud--notice is-error" onClick={loadShared}>
+              {t.sharedError}
+            </button>
+          )}
+          {sharedNotice === 'empty' && (
+            <button className="hud hud--notice" onClick={openShare}>
+              {t.sharedEmpty}
+            </button>
+          )}
 
           <div className="hud hud--buttons">
             <button className="btn btn--ghost btn--sm" onClick={() => setShowWelcome(true)}>
@@ -256,6 +343,11 @@ export default function App() {
             <button className="btn btn--ghost btn--sm" onClick={openComposer}>
               {t.sendCard}
             </button>
+            {mode === 'shared' && (
+              <button className="btn btn--ghost btn--sm" onClick={openShare}>
+                {t.shareButton}
+              </button>
+            )}
             {GESTURES_ENABLED && (
               <button
                 className={`btn btn--sm ${gestureOn ? 'btn--gold' : 'btn--ghost'}`}
@@ -288,6 +380,7 @@ export default function App() {
           onUseDefault={() => start('default')}
           onUseUploads={(photos) => start('upload', photos)}
           onWriteCard={openComposer}
+          onUseShared={CLOUD_ENABLED ? () => start('shared') : undefined}
           onClose={mode ? () => setShowWelcome(false) : undefined}
         />
       )}
@@ -306,10 +399,21 @@ export default function App() {
       {composerOpen && <CardComposer initial={null} onClose={closeComposer} onPreview={previewCard} />}
 
       {photoIndex !== null && (
-        <PhotoModal photos={treePhotos} index={photoIndex} onChange={setPhotoIndex} onClose={() => setPhotoIndex(null)} />
+        <PhotoModal
+          photos={treePhotos}
+          index={photoIndex}
+          onChange={setPhotoIndex}
+          onClose={() => setPhotoIndex(null)}
+          canDelete={canDelete}
+          onDelete={deleteShared}
+        />
       )}
 
       {giftOpen && <GiftModal gifts={defaultGifts} onClose={closeGift} againSignal={giftAgain} />}
+
+      {authFor && <AuthModal forSharing={authFor === 'share'} onClose={() => setAuthFor(null)} onDone={onAuthDone} />}
+      {accountOpen && <AccountModal onClose={() => setAccountOpen(false)} />}
+      {shareOpen && <ShareModal onClose={() => setShareOpen(false)} onChanged={loadShared} />}
     </div>
   );
 }

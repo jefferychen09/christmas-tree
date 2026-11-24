@@ -1,4 +1,4 @@
-import { Suspense, useRef, type MutableRefObject } from 'react';
+import { Component, Suspense, useRef, type MutableRefObject, type ReactNode } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Environment, Lightformer, OrbitControls, PerspectiveCamera, Sparkles, Stars } from '@react-three/drei';
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
@@ -7,6 +7,20 @@ import * as THREE from 'three';
 import { CONFIG, type GestureMotion, type SceneState } from './config';
 import { Foliage, FairyLights, TopStar } from './TreeParts';
 import { Decorations, PhotoOrnaments, Presents } from './Interactive';
+
+/** 照片贴图加载失败时只隐藏照片，不让整个 3D 场景崩掉；换一组照片后再试 */
+class PhotoBoundary extends Component<{ resetKey: string; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidUpdate(prev: { resetKey: string }) {
+    if (prev.resetKey !== this.props.resetKey && this.state.failed) this.setState({ failed: false });
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
 
 const MIN_DIST = 25;
 const MAX_DIST = 130;
@@ -81,9 +95,11 @@ export default function Experience({ sceneState, motion, celebrating, onStarClic
         <TopStar state={sceneState} onClick={onStarClick} />
         <Decorations state={sceneState} onGift={onGiftClick} />
         <Presents state={sceneState} onGift={onGiftClick} />
-        <Suspense fallback={null}>
-          {photoUrls.length > 0 && <PhotoOrnaments state={sceneState} urls={photoUrls} onPick={onPhotoClick} />}
-        </Suspense>
+        <PhotoBoundary resetKey={`${photoUrls.length}:${photoUrls[0]?.slice(-40)}`}>
+          <Suspense fallback={null}>
+            {photoUrls.length > 0 && <PhotoOrnaments state={sceneState} urls={photoUrls} onPick={onPhotoClick} />}
+          </Suspense>
+        </PhotoBoundary>
         <Sparkles count={600} scale={50} size={8} speed={0.4} opacity={0.4} color={CONFIG.colors.silver} />
       </group>
 

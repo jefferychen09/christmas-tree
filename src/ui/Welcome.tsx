@@ -9,10 +9,12 @@ interface Props {
   onUseDefault: () => void;
   onUseUploads: (photos: PhotoItem[]) => void;
   onWriteCard: () => void;
+  /** 大家的树（在线预览版没有） */
+  onUseShared?: () => void;
   onClose?: () => void;
 }
 
-export default function Welcome({ initialUploads, onUseDefault, onUseUploads, onWriteCard, onClose }: Props) {
+export default function Welcome({ initialUploads, onUseDefault, onUseUploads, onWriteCard, onUseShared, onClose }: Props) {
   const [uploads, setUploads] = useState<PhotoItem[]>(initialUploads);
   const [busy, setBusy] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -112,6 +114,22 @@ export default function Welcome({ initialUploads, onUseDefault, onUseUploads, on
               </button>
             </div>
           </div>
+
+          {/* 大家的树：所有人分享的照片 */}
+          {onUseShared && (
+            <div className="choice choice--shared">
+              <div className="choice__head">
+                <div className="choice__icon">🌍</div>
+                <h2>{t.sharedTitle}</h2>
+              </div>
+              <p>{t.sharedDesc}</p>
+              <div className="choice__actions">
+                <button className="btn btn--gold" onClick={onUseShared}>
+                  {t.sharedOpen}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 写贺卡 */}

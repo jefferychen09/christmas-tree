@@ -26,6 +26,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          # GitHub Pages 没有后端：登录和「大家的树」用 Cloudflare 上的接口
+          VITE_API_BASE: https://christmas-tree-794.pages.dev
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

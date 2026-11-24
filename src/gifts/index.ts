@@ -1,3 +1,4 @@
+import type { SharedPhoto } from '../api';
 import { getIllustratedGifts } from './illustrations';
 
 export interface PhotoItem {
@@ -7,6 +8,10 @@ export interface PhotoItem {
   nameEn?: string;
   /** 日文名（内置插画有） */
   nameJa?: string;
+  /** 挂在树上用的小图；没有就用 url */
+  thumb?: string;
+  /** 来自「大家的树」：上传者、时间等 */
+  shared?: SharedPhoto;
 }
 
 // 你自己的礼品图片：放进 src/assets/gifts/ 文件夹即可自动加载（文件名就是礼品名，例如「小火车.jpg」）

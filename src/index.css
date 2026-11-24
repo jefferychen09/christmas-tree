@@ -107,7 +107,7 @@ body { overscroll-behavior: none; }
   top: 18px; left: 50%; transform: translateX(-50%);
   display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;
   font-size: 12px; color: var(--muted);
-  max-width: calc(100vw - 260px);
+  max-width: min(760px, calc(100vw - 480px));
 }
 .hud--hint span {
   padding: 5px 12px; border-radius: 999px;
@@ -229,7 +229,7 @@ body { overscroll-behavior: none; }
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 60px rgba(255, 215, 0, 0.15);
   animation: pop-in 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
 }
-.polaroid img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #ddd; }
+.polaroid img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: #ddd; background-size: cover; background-position: center; }
 .polaroid__caption {
   padding: 14px 8px 18px;
   text-align: center;
@@ -312,9 +312,12 @@ body { overscroll-behavior: none; }
 }
 
 /* ---------------- 语言切换 ---------------- */
-.lang-toggle {
+.corner {
   position: fixed; z-index: 50;
   top: calc(16px + env(safe-area-inset-top, 0px)); right: calc(16px + env(safe-area-inset-right, 0px));
+  display: flex; align-items: center; gap: 8px;
+}
+.lang-toggle {
   display: flex; padding: 3px; gap: 2px;
   border-radius: 999px; border: 1px solid var(--glass-border);
   background: var(--glass-fill), var(--glass-tint); box-shadow: var(--glass-edge);
@@ -542,6 +545,133 @@ button.guide__row:hover { background: rgba(255, 215, 0, 0.07); }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
 }
 
+/* ---------------- 账号 ---------------- */
+.account-btn {
+  display: inline-flex; align-items: center; gap: 6px; max-width: 180px;
+  height: 36px; padding: 0 14px 0 11px; border-radius: 999px;
+  border: 1px solid var(--glass-border); background: var(--glass-fill), var(--glass-tint);
+  box-shadow: var(--glass-edge); backdrop-filter: var(--glass-blur);
+  color: var(--ink); font-size: 12.5px; font-weight: 700; cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.account-btn:hover { background: var(--glass-fill-hover); border-color: var(--gold-soft); color: var(--gold); }
+.account-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.account-btn.is-in { color: var(--gold); }
+.account-btn__icon { font-size: 14px; line-height: 1; }
+.account-btn__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* 弹出的面板：登录、账号、分享照片 */
+.sheet {
+  position: relative;
+  display: grid; gap: 14px; align-content: start;
+  width: min(420px, 100%); max-height: calc(100dvh - 32px); overflow-y: auto;
+  padding: 28px 26px 24px; border-radius: 24px; text-align: left;
+  animation: pop-in 0.4s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+.sheet--wide { width: min(640px, 100%); }
+/* 表单要好读：比别的玻璃面板更不透明一些 */
+.sheet.glass { background: var(--glass-panel), rgba(10, 16, 13, 0.74); }
+.sheet .modal__close { top: 14px; right: 14px; }
+.sheet .modal__close:disabled { opacity: 0.4; cursor: not-allowed; }
+.sheet__title {
+  margin: 0; padding-right: 44px;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  font-size: 21px; font-weight: 700; color: var(--ink); overflow-wrap: anywhere;
+}
+.sheet__lead { margin: -4px 0 0; font-size: 14px; line-height: 1.6; color: var(--muted); }
+.sheet__form { display: grid; gap: 12px; }
+.sheet__submit { justify-self: start; }
+.sheet__sub { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: var(--gold); }
+.sheet__section { display: grid; gap: 12px; padding-top: 16px; border-top: 1px solid var(--glass-border); }
+.sheet__section > .btn { justify-self: start; }
+.sheet__switch { margin: 0; font-size: 13.5px; color: var(--muted); }
+.sheet__note { margin: 0; font-size: 12.5px; line-height: 1.6; color: var(--muted); }
+.sheet__warn {
+  margin: 0; padding: 10px 14px; border-radius: 12px;
+  font-size: 13px; line-height: 1.6; color: var(--ink);
+  background: rgba(255, 215, 0, 0.08); border: 1px solid rgba(255, 215, 0, 0.28);
+}
+.sheet__ok { margin: 0; font-size: 13.5px; color: #9be7a1; }
+.sheet .thumbs { margin-top: 0; }
+
+.field__hint { font-size: 12px; line-height: 1.5; color: var(--muted); }
+.field__pw { position: relative; display: block; }
+.field__pw .field__input { padding-right: 70px; }
+.field__eye {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  padding: 5px 10px; border: none; border-radius: 8px;
+  background: transparent; color: var(--muted); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.field__eye:hover { color: var(--gold); }
+.field__eye:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+.link-btn {
+  padding: 0; border: none; background: none;
+  color: var(--gold); font: inherit; font-weight: 700; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.badge {
+  padding: 2px 9px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+  color: var(--gold); background: var(--gold-faint); border: 1px solid var(--gold-soft);
+}
+.inline-field { display: flex; gap: 8px; }
+.inline-field .field__input { flex: 1; min-width: 0; }
+.reset-result { display: grid; gap: 8px; }
+.reset-result__pw { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.08em; color: var(--gold); }
+
+/* 自己分享的照片：点 × 后再确认一次 */
+.thumb__confirm {
+  position: absolute; inset: 0; padding: 4px;
+  display: grid; align-content: center; gap: 4px;
+  background: rgba(0, 0, 0, 0.72);
+}
+.thumb__yes, .thumb__no {
+  padding: 4px 2px; border: none; border-radius: 6px;
+  font: inherit; font-size: 11px; font-weight: 700; cursor: pointer;
+}
+.thumb__yes { background: #e53935; color: #fff; }
+.thumb__no { background: rgba(255, 255, 255, 0.16); color: var(--ink); }
+
+/* 拍立得下面：上传日期 + 删除 */
+.polaroid__meta {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  margin-top: -8px; padding: 0 6px 12px;
+  font-size: 12.5px; color: #7a6650;
+}
+.polaroid__confirm { display: inline-flex; gap: 6px; }
+.polaroid__del, .polaroid__cancel {
+  padding: 4px 10px; border-radius: 999px; background: transparent;
+  font: inherit; font-size: 12px; font-weight: 700; cursor: pointer;
+}
+.polaroid__del { border: 1px solid rgba(198, 40, 40, 0.5); color: #c62828; }
+.polaroid__del:hover:not(:disabled) { background: #c62828; color: #fff; }
+.polaroid__cancel { border: 1px solid rgba(59, 42, 26, 0.25); color: #5a4632; }
+.polaroid__err { margin: 0; padding: 0 6px 12px; font-size: 12.5px; color: #c62828; }
+
+/* 大家的树：加载中 / 还没有照片 / 加载失败 */
+.hud--notice {
+  left: 50%; bottom: calc(86px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+  width: max-content; max-width: calc(100vw - 32px); padding: 8px 16px; border-radius: 999px;
+  border: 1px solid var(--glass-border); background: var(--glass-fill), var(--glass-tint);
+  box-shadow: var(--glass-edge); backdrop-filter: var(--glass-blur);
+  color: var(--ink); font: inherit; font-size: 13px; text-align: center;
+}
+button.hud--notice { cursor: pointer; }
+button.hud--notice:hover { border-color: var(--gold-soft); color: var(--gold); }
+.hud--notice.is-error { color: #ff8a80; }
+
+/* 欢迎页：大家的树（占满一整行） */
+.choice--shared {
+  grid-column: 1 / -1;
+  flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px 18px;
+  background: radial-gradient(circle at 0% 50%, rgba(46, 160, 90, 0.24), transparent 60%), var(--glass-fill);
+}
+.choice--shared .choice__head { flex-direction: row; align-items: center; gap: 10px; }
+.choice--shared .choice__icon { font-size: 26px; }
+.choice--shared h2 { margin: 0; }
+.choice--shared p { flex: 1 1 260px; }
+.choice--shared .choice__actions { margin-top: 0; padding-top: 0; }
+
 /* ---------------- 手机 ---------------- */
 @media (max-width: 720px) {
   .welcome { place-items: start center; }
@@ -562,7 +692,7 @@ button.guide__row:hover { background: rgba(255, 215, 0, 0.07); }
   .choice .hint { margin-top: 8px; }
   .hud--hint {
     top: calc(14px + env(safe-area-inset-top, 0px)); left: 16px; transform: none;
-    justify-content: flex-start; max-width: calc(100vw - 130px); font-size: 11px;
+    justify-content: flex-start; max-width: calc(100vw - 200px); font-size: 11px;
   }
   .hud--hint span:first-child, .hud--hint span:last-child { display: none; }
   .hud--stats { bottom: auto; top: calc(92px + env(safe-area-inset-top, 0px)); left: 16px; }
@@ -575,6 +705,14 @@ button.guide__row:hover { background: rgba(255, 215, 0, 0.07); }
   .counter { bottom: 30px; }
   .camera--show { width: 160px; top: 100px; }
   .card-cta { flex-direction: column; align-items: stretch; padding: 16px; }
+  .account-btn { width: 36px; padding: 0; justify-content: center; }
+  .account-btn__label { display: none; }
+  .choice--shared { flex-direction: column; align-items: flex-start; }
+  .choice--shared p { flex: none; }
+  .choice--shared .choice__actions { padding-top: 8px; }
+  .hud--notice { bottom: calc(136px + env(safe-area-inset-bottom, 0px)); }
+  .sheet { padding: 24px 18px 20px; border-radius: 20px; }
+  .thumb__x { opacity: 1; }
   .composer { grid-template-columns: minmax(0, 1fr); padding: 24px 16px 20px; border-radius: 20px; }
   .composer__preview { display: none; }
   /* iPhone 的 Safari 在输入框字号小于 16px 时会自动放大整页，这里统一 16px */
@@ -592,7 +730,8 @@ button.guide__row:hover { background: rgba(255, 215, 0, 0.07); }
   }
   .hud--hint span { padding: 4px 10px; white-space: nowrap; }
   .hud--hint span:first-child, .hud--hint span:last-child { display: none; }
-  .lang-toggle { top: calc(8px + env(safe-area-inset-top, 0px)); }
+  .corner { top: calc(8px + env(safe-area-inset-top, 0px)); }
+  .hud--notice { bottom: calc(60px + env(safe-area-inset-bottom, 0px)); }
   .hud--stats { bottom: calc(12px + env(safe-area-inset-bottom, 0px)); left: calc(16px + env(safe-area-inset-left, 0px)); }
   .stat__value { font-size: 20px; }
   .hud--buttons { bottom: calc(10px + env(safe-area-inset-bottom, 0px)); right: calc(14px + env(safe-area-inset-right, 0px)); gap: 6px; }

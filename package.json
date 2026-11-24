@@ -9,7 +9,12 @@
     "prebuild": "node scripts/copy-mediapipe.mjs",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "deploy:cf": "npm run build && npx --yes wrangler@4 pages deploy dist --project-name christmas-tree --branch main --commit-dirty=true"
+    "dev:api": "npm run build && wrangler pages dev --port 8788",
+    "types:worker": "wrangler types",
+    "db:migrate:local": "wrangler d1 migrations apply christmas-tree --local",
+    "db:migrate": "wrangler d1 migrations apply christmas-tree --remote",
+    "admin": "node scripts/make-admin.mjs",
+    "deploy:cf": "npm run build && wrangler pages deploy dist --project-name christmas-tree --branch main --commit-dirty=true"
   },
   "dependencies": {
     "@fontsource/great-vibes": "^5.3.0",
@@ -29,6 +34,7 @@
     "@types/three": "^0.169.0",
     "@vitejs/plugin-react": "^4.3.3",
     "typescript": "~5.6.2",
-    "vite": "^5.4.11"
+    "vite": "^5.4.11",
+    "wrangler": "^4.168.0"
   }
 }
