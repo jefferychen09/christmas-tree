@@ -24,7 +24,8 @@ export const CONFIG = {
   },
   counts: {
     foliage: 15000,
-    ornaments: 180, // 树上拍立得数量
+    ornaments: 96, // 树上拍立得数量（照片多时最多 maxOrnaments 张）
+    maxOrnaments: 150,
     elements: 160, // 小礼盒/彩球/拐杖糖
     lights: 400,
   },
@@ -38,6 +39,23 @@ export const treeSurfacePoint = (offset: number, radiusScale = 1) => {
   const r = CONFIG.tree.radius * (1 - (y + h / 2) / h) * radiusScale + offset;
   const theta = Math.random() * Math.PI * 2;
   return [r * Math.cos(theta), y, r * Math.sin(theta)] as const;
+};
+
+/**
+ * 沿螺旋线把第 i / n 个卡片均匀铺在树的圆锥面上：
+ * 按面积分布（下面周长大，放得多），黄金角错开避免重叠，树尖和树底各留一点空。
+ * 返回位置、所在角度，以及从树尖往下的比例 depth（0 = 树尖，1 = 树底）。
+ */
+export const treeSpiralPoint = (i: number, n: number, offset: number) => {
+  const { height: h, radius: R } = CONFIG.tree;
+  const s0 = 0.16; // 树尖下面留空（星星和最窄处不挂）
+  const s1 = 0.96;
+  const u = (i + 0.3 + Math.random() * 0.4) / n;
+  const depth = Math.sqrt(s0 * s0 + u * (s1 * s1 - s0 * s0));
+  const y = h / 2 - depth * h;
+  const theta = i * 2.39996323 + (Math.random() - 0.5) * 0.25;
+  const r = R * depth + offset;
+  return { pos: [r * Math.cos(theta), y, r * Math.sin(theta)] as const, theta, depth };
 };
 
 export const randomInCube = (size: number) =>
