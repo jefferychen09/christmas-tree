@@ -331,6 +331,23 @@ body { overscroll-behavior: none; }
 .lang-toggle button.is-active { background: var(--gold); color: #2a1a00; }
 .lang-toggle button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
+.music-btn {
+  display: inline-grid; place-items: center; width: 36px; height: 36px; padding: 0;
+  border-radius: 999px; border: 1px solid var(--glass-border);
+  background: var(--glass-fill), var(--glass-tint); box-shadow: var(--glass-edge); backdrop-filter: var(--glass-blur);
+  color: var(--muted); font-size: 16px; line-height: 1; cursor: pointer; position: relative;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.music-btn:hover { background: var(--glass-fill-hover); border-color: var(--gold-soft); color: var(--gold); }
+.music-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.music-btn:not(.is-on)::after {
+  content: ''; position: absolute; width: 20px; height: 1.5px; background: currentColor;
+  transform: rotate(-45deg); border-radius: 1px;
+}
+.music-btn.is-on { color: var(--gold); border-color: var(--gold-soft); }
+.music-btn.is-on span { animation: music-bob 1.2s ease-in-out infinite; }
+@keyframes music-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+
 /* ---------------- 手势说明面板 ---------------- */
 .guide {
   position: absolute; z-index: 12;

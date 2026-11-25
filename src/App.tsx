@@ -18,6 +18,8 @@ import { IS_TOUCH } from './device';
 import { api, CLOUD_ENABLED, photoUrl, thumbSrc } from './api';
 import { useAuth } from './auth';
 import AccountButton from './ui/AccountButton';
+import MusicButton from './ui/MusicButton';
+import { music } from './music/player';
 import AuthModal from './ui/AuthModal';
 import AccountModal from './ui/AccountModal';
 import ShareModal from './ui/ShareModal';
@@ -125,6 +127,7 @@ export default function App() {
     mode !== 'shared' ? null : sharedFailed ? 'error' : shared === null ? 'loading' : shared.length === 0 ? 'empty' : null;
 
   const start = (next: Mode, photos?: PhotoItem[]) => {
+    music.autoStart(); // 点「开始」就是用户操作，可以出声了
     if (photos) setUploads(photos);
     setMode(next);
     setShowWelcome(false);
@@ -150,6 +153,18 @@ export default function App() {
     };
   }, [card]);
 
+  // 直接打开贺卡链接的人没有经过欢迎页：在树上第一次点击/按键时开始放音乐
+  useEffect(() => {
+    if (showWelcome) return;
+    const kick = () => music.autoStart();
+    window.addEventListener('pointerup', kick, { once: true });
+    window.addEventListener('keydown', kick, { once: true });
+    return () => {
+      window.removeEventListener('pointerup', kick);
+      window.removeEventListener('keydown', kick);
+    };
+  }, [showWelcome]);
+
   useEffect(() => {
     const onHash = () => {
       const next = readCardFromHash();
@@ -172,6 +187,7 @@ export default function App() {
   }, []);
   const closeCard = useCallback(() => setCardView('hidden'), []);
   const openComposer = useCallback(() => {
+    music.autoStart();
     setCardView('hidden');
     setShowWelcome(false);
     setComposerOpen(true);
@@ -295,6 +311,7 @@ export default function App() {
       )}
 
       <div className="corner">
+        <MusicButton />
         {CLOUD_ENABLED && <AccountButton onClick={openAccount} />}
         <LangToggle />
       </div>
