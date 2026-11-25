@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
-import { CONFIG, randomInCube, treeSpiralPoint, treeSurfacePoint, type SceneState } from './config';
+import { CONFIG, randomInCube, treeSurfacePoint, type SceneState } from './config';
 
 // 拖动视角时不要误触点击：指针移动超过 6px 就视为拖拽
 const isRealClick = (e: ThreeEvent<MouseEvent>) => e.delta <= 6;
@@ -33,9 +33,7 @@ export const PhotoOrnaments = ({
   const groupRef = useRef<THREE.Group>(null);
   const borderGeometry = useMemo(() => new THREE.PlaneGeometry(1.2, 1.5), []);
   const photoGeometry = useMemo(() => new THREE.PlaneGeometry(1, 1), []);
-  const wobble = useMemo(() => new THREE.Euler(), []);
-  const wobbleQuat = useMemo(() => new THREE.Quaternion(), []);
-  const desired = useMemo(() => new THREE.Quaternion(), []);
+  const lookTarget = useMemo(() => new THREE.Vector3(), []);
   const hovered = useRef<number | null>(null);
 
   useMemo(() => {
@@ -47,21 +45,19 @@ export const PhotoOrnaments = ({
   }, [textures]);
 
   const data = useMemo(() => {
-    // 照片少的时候也保证每张至少出现一次；照片多时最多挂 maxOrnaments 张，免得树上太挤
-    const count = Math.max(CONFIG.counts.ornaments, Math.min(textures.length, CONFIG.counts.maxOrnaments));
-    const slope = CONFIG.tree.radius / CONFIG.tree.height;
-    const aim = new THREE.Object3D();
+    // 照片少的时候也保证每张至少出现几次；照片多时全部挂上去
+    const count = Math.max(CONFIG.counts.ornaments, Math.min(textures.length, 400));
     return Array.from({ length: count }, (_, i) => {
       const chaosPos = new THREE.Vector3(...randomInCube(70));
-      const { pos, theta, depth } = treeSpiralPoint(i, count, 0.55);
-      // 卡片贴着圆锥斜面、正面朝外，并保持竖直（不会在树尖处平躺）
-      aim.lookAt(Math.cos(theta), slope, Math.sin(theta));
+      const isBig = Math.random() < 0.2;
+      const targetPos = new THREE.Vector3(...treeSurfacePoint(0.5));
+      // 按高度调大小：树尖的卡片小一些，越往下越大
+      const depth = (CONFIG.tree.height / 2 - targetPos.y) / CONFIG.tree.height;
+      const sizeByHeight = 0.5 + depth * 0.75;
       return {
         chaosPos,
-        targetPos: new THREE.Vector3(...pos),
-        targetQuat: aim.quaternion.clone(),
-        // 越靠近树尖越小，整体轮廓更顺
-        scale: 0.45 + depth * 0.85 + Math.random() * 0.1,
+        targetPos,
+        scale: (isBig ? 2.2 : 0.8 + Math.random() * 0.6) * sizeByHeight,
         weight: 0.8 + Math.random() * 1.2,
         textureIndex: i % textures.length,
         borderColor: pick(CONFIG.colors.borders),
@@ -88,10 +84,10 @@ export const PhotoOrnaments = ({
       d.currentScale = THREE.MathUtils.damp(d.currentScale, targetScale, 10, delta);
       group.scale.setScalar(d.currentScale);
       if (formed) {
-        // 平滑转到贴树的朝向，再加一点轻微摇摆
-        wobble.set(Math.sin(t * d.wobbleSpeed + d.wobbleOffset) * 0.03, 0, Math.cos(t * d.wobbleSpeed * 0.8 + d.wobbleOffset) * 0.03);
-        desired.copy(d.targetQuat).multiply(wobbleQuat.setFromEuler(wobble));
-        group.quaternion.slerp(desired, Math.min(1, delta * 3));
+        lookTarget.set(group.position.x * 2, group.position.y + 0.5, group.position.z * 2);
+        group.lookAt(lookTarget);
+        group.rotation.x += Math.sin(t * d.wobbleSpeed + d.wobbleOffset) * 0.05;
+        group.rotation.z += Math.cos(t * d.wobbleSpeed * 0.8 + d.wobbleOffset) * 0.05;
       } else {
         group.rotation.x += delta * d.rotationSpeed.x;
         group.rotation.y += delta * d.rotationSpeed.y;
