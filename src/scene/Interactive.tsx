@@ -61,7 +61,7 @@ export const PhotoOrnaments = ({
         targetPos: new THREE.Vector3(...pos),
         targetQuat: aim.quaternion.clone(),
         // 越靠近树尖越小，整体轮廓更顺
-        scale: 0.55 + depth * 0.4 + Math.random() * 0.1,
+        scale: 0.45 + depth * 0.85 + Math.random() * 0.1,
         weight: 0.8 + Math.random() * 1.2,
         textureIndex: i % textures.length,
         borderColor: pick(CONFIG.colors.borders),
